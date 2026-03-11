@@ -1,5 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
+import { MobileBottomNav } from "./MobileBottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { Bell, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,10 +37,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </Avatar>
             </div>
           </header>
-          <main className="flex-1 p-4 md:p-6 overflow-auto">
+          <main className="flex-1 p-4 md:p-6 overflow-auto pb-20 md:pb-6">
             {children}
           </main>
         </div>
+        <MobileBottomNav />
       </div>
     </SidebarProvider>
   );
