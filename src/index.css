@@ -130,4 +130,7 @@
     @apply text-lg font-semibold mb-3;
     font-family: var(--font-heading);
   }
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
