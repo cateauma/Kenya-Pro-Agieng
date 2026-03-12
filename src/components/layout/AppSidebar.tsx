@@ -19,7 +19,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROLE_CONFIGS, UserRole } from "@/lib/roles";
 import logo from "@/assets/logo.png";
@@ -110,7 +110,13 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   const role = user?.role || "admin";
   const items = roleNavItems[role] || [];
@@ -168,7 +174,7 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={logout} className="hover:bg-destructive/10 text-sidebar-foreground/70">
+            <SidebarMenuButton onClick={handleLogout} className="hover:bg-destructive/10 text-sidebar-foreground/70">
               <LogOut className="mr-2 h-4 w-4" />
               {!collapsed && <span>Logout</span>}
             </SidebarMenuButton>
