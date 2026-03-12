@@ -174,7 +174,7 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={logout} className="hover:bg-destructive/10 text-sidebar-foreground/70">
+            <SidebarMenuButton onClick={handleLogout} className="hover:bg-destructive/10 text-sidebar-foreground/70">
               <LogOut className="mr-2 h-4 w-4" />
               {!collapsed && <span>Logout</span>}
             </SidebarMenuButton>
