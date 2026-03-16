@@ -47,6 +47,8 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
     { title: "User Management", url: "/admin/users", icon: Users },
     { title: "Approvals", url: "/admin/approvals", icon: UserCheck },
+    { title: "Event signups", url: "/admin/signups", icon: Calendar },
+    { title: "Service requests", url: "/admin/service-requests", icon: ClipboardList },
     { title: "Reports", url: "/admin/reports", icon: FileText },
     { title: "Settings", url: "/admin/settings", icon: Settings },
   ],
@@ -80,7 +82,6 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
   ],
   beneficiary: [
     { title: "Dashboard", url: "/beneficiary", icon: LayoutDashboard },
-    { title: "My Care Plan", url: "/beneficiary/care-plan", icon: ClipboardList },
     { title: "Services", url: "/beneficiary/services", icon: Heart },
     { title: "Notifications", url: "/beneficiary/notifications", icon: Bell },
   ],

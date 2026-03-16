@@ -17,6 +17,8 @@ const mobileNavItems: Record<UserRole, NavItem[]> = {
     { title: "Home", url: "/admin", icon: LayoutDashboard },
     { title: "Users", url: "/admin/users", icon: Users },
     { title: "Approvals", url: "/admin/approvals", icon: UserCheck },
+    { title: "Signups", url: "/admin/signups", icon: Calendar },
+    { title: "Services", url: "/admin/service-requests", icon: ClipboardList },
     { title: "Reports", url: "/admin/reports", icon: FileText },
     { title: "Settings", url: "/admin/settings", icon: Settings },
   ],
@@ -52,7 +54,6 @@ const mobileNavItems: Record<UserRole, NavItem[]> = {
   ],
   beneficiary: [
     { title: "Home", url: "/beneficiary", icon: LayoutDashboard },
-    { title: "Care", url: "/beneficiary/care-plan", icon: ClipboardList },
     { title: "Services", url: "/beneficiary/services", icon: Heart },
     { title: "Alerts", url: "/beneficiary/notifications", icon: Bell },
   ],

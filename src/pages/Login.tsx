@@ -5,31 +5,41 @@ import { ROLE_CONFIGS } from "@/lib/roles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import logo from "@/assets/logo.png";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, AlertCircle } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { login, setMockUser } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
     try {
-      await login(email, password);
-      navigate("/admin");
+      const user = await login(email, password);
+      if (user.status === "pending") {
+        navigate("/pending-approval");
+        return;
+      }
+      const path = ROLE_CONFIGS[user.role as keyof typeof ROLE_CONFIGS].dashboardPath;
+      navigate(path);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sign in failed");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDemoLogin = (role: string) => {
-    setMockUser(role as any);
-    navigate(ROLE_CONFIGS[role as keyof typeof ROLE_CONFIGS].dashboardPath);
+  const handleDemoLogin = (role: keyof typeof ROLE_CONFIGS) => {
+    setMockUser(role);
+    navigate(ROLE_CONFIGS[role].dashboardPath);
   };
 
   return (
@@ -42,6 +52,12 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <div>
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />

@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import logo from "@/assets/logo.png";
-import { ChevronRight, ChevronLeft, Upload } from "lucide-react";
+import { ChevronRight, ChevronLeft, Upload, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Register() {
   const [step, setStep] = useState(1);
@@ -19,6 +20,7 @@ export default function Register() {
   const [location, setLocation] = useState("");
   const [dob, setDob] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -27,10 +29,13 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!role) return;
+    setError("");
     setLoading(true);
     try {
       await register({ name, email, password, role, phone, idNumber, location, dateOfBirth: dob });
       navigate("/pending-approval");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -50,23 +55,33 @@ export default function Register() {
             <p className="text-sm font-medium">Select your role:</p>
             <div className="grid grid-cols-2 gap-3">
               {REGISTRATION_ROLES.map((r) => (
-                <button key={r} onClick={() => setRole(r)}
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => {
+                    setRole(r);
+                    setStep(2);
+                  }}
                   className={`p-3 rounded-lg border text-left transition-all ${
                     role === r ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "hover:bg-muted"
-                  }`}>
+                  }`}
+                >
                   <p className="text-sm font-medium">{ROLE_CONFIGS[r].label}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">{ROLE_CONFIGS[r].description}</p>
                 </button>
               ))}
             </div>
-            <Button onClick={() => role && setStep(2)} disabled={!role} className="w-full">
-              Continue <ChevronRight className="ml-1 h-4 w-4" />
-            </Button>
           </div>
         )}
 
         {step === 2 && (
           <form onSubmit={isBeneficiary ? (e) => { e.preventDefault(); setStep(3); } : handleSubmit} className="space-y-4">
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <div>
               <Label>Full Name</Label>
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" required />
@@ -81,7 +96,7 @@ export default function Register() {
             </div>
             <div>
               <Label>Phone Number</Label>
-              <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+254..." />
+              <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+254..." required />
             </div>
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">
@@ -97,6 +112,12 @@ export default function Register() {
 
         {step === 3 && isBeneficiary && (
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <p className="text-sm text-muted-foreground">Additional information required for beneficiaries</p>
             <div>
               <Label>National ID Number</Label>

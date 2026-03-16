@@ -36,6 +36,14 @@ npm i
 npm run dev
 ```
 
+This repo is a **single application**: frontend (React + Vite) and backend (Node + Express) together.
+
+- **`npm run dev`** – Starts both the frontend (Vite on port 8080) and the backend API (Express on port 4000). Use this for local development.
+- **`npm run dev:frontend`** – Frontend only (e.g. if you use Supabase only).
+- **`npm run dev:backend`** – Backend only (from `backend/`).
+- **`npm run build`** – Build the frontend to `dist/`.
+- **`npm start`** – Production: serves the built frontend and API from one server (run after `npm run build`). Set `NODE_ENV=production` and configure `backend/.env` (see `backend/README.md`).
+
 **Edit a file directly in GitHub**
 
 - Navigate to the desired file(s).

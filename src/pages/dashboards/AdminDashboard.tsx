@@ -1,7 +1,13 @@
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActivityList } from "@/components/dashboard/ActivityList";
-import { Users, UserCheck, Heart, HandCoins, AlertTriangle, Calendar } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Users, UserCheck, Heart, HandCoins, AlertTriangle, Calendar, CalendarCheck, ArrowRight } from "lucide-react";
+import { fetchAdminSignups } from "@/lib/api/admin";
+import { hasBackendConfig } from "@/lib/api/client";
 
 const activities = [
   { id: "1", text: "New volunteer registration from Jane Wanjiku", time: "5 minutes ago", type: "info" as const },
@@ -18,6 +24,12 @@ const pendingApprovals = [
 ];
 
 export default function AdminDashboard() {
+  const { data: signups = [] } = useQuery({
+    queryKey: ["admin", "signups"],
+    queryFn: fetchAdminSignups,
+    enabled: hasBackendConfig(),
+  });
+
   return (
     <DashboardLayout>
       <div className="page-header">
@@ -36,6 +48,27 @@ export default function AdminDashboard() {
         <StatCard title="Pending Issues" value={5} icon={AlertTriangle} />
         <StatCard title="Scheduled Events" value={12} icon={Calendar} trend="3 this week" />
       </div>
+
+      {hasBackendConfig() && (
+        <Card className="mb-6">
+          <CardContent className="flex flex-row items-center justify-between py-4">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-primary/10 p-2">
+                <CalendarCheck className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium">Event & opportunity signups</p>
+                <p className="text-sm text-muted-foreground">{signups.length} volunteer RSVP(s)</p>
+              </div>
+            </div>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/admin/signups">
+                View all <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         <ActivityList title="Recent Activity" activities={activities} />
