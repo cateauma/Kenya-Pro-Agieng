@@ -67,7 +67,7 @@ export default function Index() {
       </main>
 
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-        © 2026 Kenya Pro Aging Organization. All rights reserved.
+        © 2026 KeMU. All rights reserved.
       </footer>
     </div>
   );

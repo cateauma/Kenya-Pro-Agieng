@@ -82,11 +82,14 @@ export default function Login() {
         </p>
 
         <div className="border-t pt-4">
-          <p className="text-xs text-muted-foreground text-center mb-3">Quick Demo Access</p>
+          <p className="text-xs text-muted-foreground text-center mb-3"></p>
           <div className="grid grid-cols-3 gap-2">
             {Object.entries(ROLE_CONFIGS).map(([key, config]) => (
-              <button key={key} onClick={() => handleDemoLogin(key)}
-                className="text-xs py-2 px-2 rounded-md bg-muted hover:bg-muted/80 text-muted-foreground transition-colors truncate">
+              <button
+                key={key}
+                onClick={() => handleDemoLogin(key as keyof typeof ROLE_CONFIGS)}
+                className="text-xs py-2 px-2 rounded-md bg-muted hover:bg-muted/80 text-muted-foreground transition-colors truncate"
+              >
                 {config.label}
               </button>
             ))}

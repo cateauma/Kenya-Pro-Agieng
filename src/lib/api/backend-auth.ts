@@ -28,7 +28,7 @@ export interface RegisterPayload {
 export async function backendLogin(email: string, password: string): Promise<LoginResponse> {
   const data = await apiFetch<LoginResponse>("/api/auth/login", {
     method: "POST",
-    body: { email, password },
+    body: { email, password } as any, // ✅ FIX
   });
   setStoredToken(data.token);
   return data;
@@ -37,7 +37,7 @@ export async function backendLogin(email: string, password: string): Promise<Log
 export async function backendRegister(payload: RegisterPayload): Promise<{ user: BackendUser }> {
   const data = await apiFetch<{ user: BackendUser; message?: string }>("/api/auth/register", {
     method: "POST",
-    body: payload,
+    body: payload as any, // ✅ FIX
   });
   return { user: data.user };
 }

@@ -1,12 +1,14 @@
 /**
- * Backend API client. In production (single app) uses same origin. In dev uses VITE_API_URL if set.
+ * Backend API client. Uses deployed backend in production.
  */
+
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
-const isProduction = import.meta.env.PROD;
-const baseUrl = isProduction ? "" : (API_URL ?? "");
+const FALLBACK_API = "https://kenya-pro-agieng.onrender.com";
+
+const baseUrl = API_URL || FALLBACK_API;
 
 export function hasBackendConfig(): boolean {
-  return isProduction || Boolean(API_URL && API_URL !== "");
+  return Boolean(baseUrl);
 }
 
 const TOKEN_KEY = "kpao_token";
@@ -25,21 +27,30 @@ export async function apiFetch<T = unknown>(
   options: RequestInit & { body?: object } = {}
 ): Promise<T> {
   const url = `${baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
+
   const { body, ...rest } = options;
+
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string>),
   };
+
   const token = getStoredToken();
   if (token) headers["Authorization"] = `Bearer ${token}`;
+
   const res = await fetch(url, {
     ...rest,
     headers,
-    body: body !== undefined ? JSON.stringify(body) : options.body,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
   });
+
   const data = await res.json().catch(() => ({}));
+
   if (!res.ok) {
-    throw new Error(data?.error || data?.message || `Request failed: ${res.status}`);
+    throw new Error(
+      data?.error || data?.message || `Request failed: ${res.status}`
+    );
   }
+
   return data as T;
 }
