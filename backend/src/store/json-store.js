@@ -14,6 +14,8 @@ const defaultData = () => ({
   opportunities: [],
   volunteer_signups: [],
   service_requests: [],
+  programs: [],
+  tasks: [],
 });
 
 function read() {
@@ -284,4 +286,71 @@ export function updateServiceRequestStatus(id, status, reviewedBy) {
   r.reviewed_by = reviewedBy;
   write(data);
   return r;
+}
+
+// --- Programs & Tasks (Program Manager) ---
+
+export function getPrograms() {
+  const data = read();
+  const list = [...(data.programs || [])];
+  list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  return list;
+}
+
+export function getProgramById(id) {
+  const data = read();
+  return (data.programs || []).find((p) => p.id === id) ?? null;
+}
+
+export function createProgram(input) {
+  const data = read();
+  const now = new Date().toISOString();
+  const program = {
+    id: randomUUID(),
+    name: input.name,
+    description: input.description || "",
+    region: input.region || "Nairobi",
+    status: input.status || "Active",
+    start_date: input.start_date || now.slice(0, 10),
+    end_date: input.end_date || null,
+    budget: typeof input.budget === "number" ? input.budget : null,
+    goals: input.goals || "",
+    beneficiaries_count: input.beneficiaries_count || 0,
+    progress: input.progress ?? 0,
+    manager_id: input.manager_id || null,
+    created_at: now,
+    updated_at: now,
+  };
+  data.programs = data.programs || [];
+  data.programs.push(program);
+  write(data);
+  return program;
+}
+
+export function getTasksForProgram(programId) {
+  const data = read();
+  return [...(data.tasks || [])]
+    .filter((t) => t.program_id === programId)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
+export function createTask(input) {
+  const data = read();
+  const now = new Date().toISOString();
+  const task = {
+    id: randomUUID(),
+    program_id: input.program_id,
+    title: input.title,
+    description: input.description || "",
+    assignee_id: input.assignee_id || null,
+    priority: input.priority || "Medium",
+    status: input.status || "Pending",
+    due_date: input.due_date || null,
+    created_at: now,
+    updated_at: now,
+  };
+  data.tasks = data.tasks || [];
+  data.tasks.push(task);
+  write(data);
+  return task;
 }
