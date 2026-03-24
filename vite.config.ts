@@ -26,13 +26,13 @@ export default defineConfig(({ mode }) => ({
         start_url: "/",
         icons: [
           {
-            src: "image.png",
-            sizes: "129x192",
+            src: "image192by192.png",
+            sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "/image.png",
-            sizes: "129x192",
+            src: "/image512by512.png",
+            sizes: "512x512",
             type: "image/png",
           },
         ],
