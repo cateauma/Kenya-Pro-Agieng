@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -72,86 +74,116 @@ import Events from "./pages/volunteer/Events";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/pending-approval" element={<PendingApproval />} />
+const App = () => {
+  // --- PWA beforeinstallprompt handler ---
+  useEffect(() => {
+    let deferredPrompt: any = null;
 
-            {/* Admin */}
-            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/users" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
-            <Route path="/admin/approvals" element={<ProtectedRoute><Approvals /></ProtectedRoute>} />
-            <Route path="/admin/signups" element={<ProtectedRoute><Signups /></ProtectedRoute>} />
-            <Route path="/admin/service-requests" element={<ProtectedRoute><ServiceRequests /></ProtectedRoute>} />
-            <Route path="/admin/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-            <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
+    const handler = (e: any) => {
+      e.preventDefault(); // prevent automatic prompt
+      deferredPrompt = e;
+      // attach helper to window for manual triggering
+      (window as any).promptPWA = () => {
+        if (!deferredPrompt) {
+          console.log("No install prompt available yet.");
+          return;
+        }
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult: any) => {
+          console.log("User choice:", choiceResult.outcome); // accepted or dismissed
+          deferredPrompt = null;
+        });
+      };
+    };
 
-            {/* Program Manager */}
-            <Route path="/program-manager" element={<ProtectedRoute><ProgramManagerDashboard /></ProtectedRoute>} />
-            <Route path="/program-manager/programs" element={<ProtectedRoute><Programs /></ProtectedRoute>} />
-            <Route path="/program-manager/assignments" element={<ProtectedRoute><Assignments /></ProtectedRoute>} />
-            <Route path="/program-manager/reports" element={<ProtectedRoute><PMReports /></ProtectedRoute>} />
+    window.addEventListener("beforeinstallprompt", handler);
 
-            {/* Social Worker */}
-            <Route path="/social-worker" element={<ProtectedRoute><SocialWorkerDashboard /></ProtectedRoute>} />
-            <Route path="/social-worker/cases" element={<ProtectedRoute><Cases /></ProtectedRoute>} />
-            <Route path="/social-worker/visits" element={<ProtectedRoute><HomeVisits /></ProtectedRoute>} />
-            <Route path="/social-worker/counseling" element={<ProtectedRoute><Counseling /></ProtectedRoute>} />
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+    };
+  }, []);
 
-            {/* Healthcare */}
-            <Route path="/healthcare" element={<ProtectedRoute><HealthcareDashboard /></ProtectedRoute>} />
-            <Route path="/healthcare/records" element={<ProtectedRoute><HealthRecords /></ProtectedRoute>} />
-            <Route path="/healthcare/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/pending-approval" element={<PendingApproval />} />
 
-            {/* Finance */}
-            <Route path="/finance" element={<ProtectedRoute><FinanceDashboard /></ProtectedRoute>} />
-            <Route path="/finance/donations" element={<ProtectedRoute><Donations /></ProtectedRoute>} />
-            <Route path="/finance/budget" element={<ProtectedRoute><Budget /></ProtectedRoute>} />
-            <Route path="/finance/reports" element={<ProtectedRoute><FinanceReports /></ProtectedRoute>} />
+              {/* Admin */}
+              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
+              <Route path="/admin/approvals" element={<ProtectedRoute><Approvals /></ProtectedRoute>} />
+              <Route path="/admin/signups" element={<ProtectedRoute><Signups /></ProtectedRoute>} />
+              <Route path="/admin/service-requests" element={<ProtectedRoute><ServiceRequests /></ProtectedRoute>} />
+              <Route path="/admin/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+              <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
 
-            {/* Donor */}
-            <Route path="/donor" element={<ProtectedRoute><DonorDashboard /></ProtectedRoute>} />
-            <Route path="/donor/donations" element={<ProtectedRoute><MyDonations /></ProtectedRoute>} />
-            <Route path="/donor/impact" element={<ProtectedRoute><ImpactReports /></ProtectedRoute>} />
+              {/* Program Manager */}
+              <Route path="/program-manager" element={<ProtectedRoute><ProgramManagerDashboard /></ProtectedRoute>} />
+              <Route path="/program-manager/programs" element={<ProtectedRoute><Programs /></ProtectedRoute>} />
+              <Route path="/program-manager/assignments" element={<ProtectedRoute><Assignments /></ProtectedRoute>} />
+              <Route path="/program-manager/reports" element={<ProtectedRoute><PMReports /></ProtectedRoute>} />
 
-            {/* Beneficiary */}
-            <Route path="/beneficiary" element={<ProtectedRoute><BeneficiaryDashboard /></ProtectedRoute>} />
-            <Route path="/beneficiary/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
-            <Route path="/beneficiary/notifications" element={<ProtectedRoute><BeneficiaryNotifications /></ProtectedRoute>} />
+              {/* Social Worker */}
+              <Route path="/social-worker" element={<ProtectedRoute><SocialWorkerDashboard /></ProtectedRoute>} />
+              <Route path="/social-worker/cases" element={<ProtectedRoute><Cases /></ProtectedRoute>} />
+              <Route path="/social-worker/visits" element={<ProtectedRoute><HomeVisits /></ProtectedRoute>} />
+              <Route path="/social-worker/counseling" element={<ProtectedRoute><Counseling /></ProtectedRoute>} />
 
-            {/* Caregiver */}
-            <Route path="/caregiver" element={<ProtectedRoute><CaregiverDashboard /></ProtectedRoute>} />
-            <Route path="/caregiver/schedule" element={<ProtectedRoute><CaregiverSchedule /></ProtectedRoute>} />
-            <Route path="/caregiver/beneficiaries" element={<ProtectedRoute><BeneficiaryList /></ProtectedRoute>} />
-            <Route path="/caregiver/logs" element={<ProtectedRoute><CaregiverLogs /></ProtectedRoute>} />
+              {/* Healthcare */}
+              <Route path="/healthcare" element={<ProtectedRoute><HealthcareDashboard /></ProtectedRoute>} />
+              <Route path="/healthcare/records" element={<ProtectedRoute><HealthRecords /></ProtectedRoute>} />
+              <Route path="/healthcare/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
 
-            {/* Volunteer */}
-            <Route path="/volunteer" element={<ProtectedRoute><VolunteerDashboard /></ProtectedRoute>} />
-            <Route path="/volunteer/opportunities" element={<ProtectedRoute><Opportunities /></ProtectedRoute>} />
-            <Route path="/volunteer/hours" element={<ProtectedRoute><MyHours /></ProtectedRoute>} />
-            <Route path="/volunteer/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+              {/* Finance */}
+              <Route path="/finance" element={<ProtectedRoute><FinanceDashboard /></ProtectedRoute>} />
+              <Route path="/finance/donations" element={<ProtectedRoute><Donations /></ProtectedRoute>} />
+              <Route path="/finance/budget" element={<ProtectedRoute><Budget /></ProtectedRoute>} />
+              <Route path="/finance/reports" element={<ProtectedRoute><FinanceReports /></ProtectedRoute>} />
 
-            {/* Static pages */}
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/help" element={<Help />} />
-            <Route path="/feedback" element={<Feedback />} />
-            <Route path="/search" element={<SearchPage />} />
+              {/* Donor */}
+              <Route path="/donor" element={<ProtectedRoute><DonorDashboard /></ProtectedRoute>} />
+              <Route path="/donor/donations" element={<ProtectedRoute><MyDonations /></ProtectedRoute>} />
+              <Route path="/donor/impact" element={<ProtectedRoute><ImpactReports /></ProtectedRoute>} />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+              {/* Beneficiary */}
+              <Route path="/beneficiary" element={<ProtectedRoute><BeneficiaryDashboard /></ProtectedRoute>} />
+              <Route path="/beneficiary/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
+              <Route path="/beneficiary/notifications" element={<ProtectedRoute><BeneficiaryNotifications /></ProtectedRoute>} />
+
+              {/* Caregiver */}
+              <Route path="/caregiver" element={<ProtectedRoute><CaregiverDashboard /></ProtectedRoute>} />
+              <Route path="/caregiver/schedule" element={<ProtectedRoute><CaregiverSchedule /></ProtectedRoute>} />
+              <Route path="/caregiver/beneficiaries" element={<ProtectedRoute><BeneficiaryList /></ProtectedRoute>} />
+              <Route path="/caregiver/logs" element={<ProtectedRoute><CaregiverLogs /></ProtectedRoute>} />
+
+              {/* Volunteer */}
+              <Route path="/volunteer" element={<ProtectedRoute><VolunteerDashboard /></ProtectedRoute>} />
+              <Route path="/volunteer/opportunities" element={<ProtectedRoute><Opportunities /></ProtectedRoute>} />
+              <Route path="/volunteer/hours" element={<ProtectedRoute><MyHours /></ProtectedRoute>} />
+              <Route path="/volunteer/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+
+              {/* Static pages */}
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/help" element={<Help />} />
+              <Route path="/feedback" element={<Feedback />} />
+              <Route path="/search" element={<SearchPage />} />
+
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
