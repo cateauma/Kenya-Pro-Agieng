@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     VitePWA({
       registerType: "autoUpdate",
+      injectRegister: "auto", // This is critical for mobile install prompt
       includeAssets: ["image192by192.png", "image512by512.png", "favicon.ico", "robots.txt"],
       manifest: {
         name: "Kenya Pro Aging App",
