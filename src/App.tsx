@@ -80,7 +80,7 @@ const App = () => {
     let deferredPrompt: any = null;
 
     const handler = (e: Event) => {
-      e.preventDefault(); // prevent automatic prompt
+      // Removed e.preventDefault() - now allows browser to show install banner
       deferredPrompt = e;
       // attach helper to window for manual triggering
       (window as any).promptPWA = () => {
