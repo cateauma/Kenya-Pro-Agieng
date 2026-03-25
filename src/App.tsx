@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -75,19 +75,24 @@ import Events from "./pages/volunteer/Events";
 const queryClient = new QueryClient();
 
 const App = () => {
+  // --- PWA install button state ---
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallButton, setShowInstallButton] = useState(false);
+
   // --- PWA beforeinstallprompt handler ---
   useEffect(() => {
-    let deferredPrompt: any = null;
-
     const handler = (e: Event) => {
-      // Removed e.preventDefault() - now allows browser to show install banner
-      deferredPrompt = e;
+      // Prevent automatic prompt so we can show button
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallButton(true);
       // attach helper to window for manual triggering
       (window as any).promptPWA = () => {
         if (deferredPrompt && (deferredPrompt as any).prompt) {
           (deferredPrompt as any).prompt();
           (deferredPrompt as any).userChoice.then((choiceResult: any) => {
-            deferredPrompt = null;
+            setDeferredPrompt(null);
+            setShowInstallButton(false);
           });
         }
       };
@@ -99,7 +104,23 @@ const App = () => {
       window.removeEventListener("beforeinstallprompt", handler);
       delete (window as any).promptPWA;
     };
-  }, []);
+  }, [deferredPrompt]);
+
+  const handleInstallClick = () => {
+    if (!deferredPrompt) return;
+    
+    // Show the install prompt
+    deferredPrompt.prompt();
+    
+    // Wait for user response
+    deferredPrompt.userChoice.then((choiceResult: any) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted install');
+      }
+      setDeferredPrompt(null);
+      setShowInstallButton(false);
+    });
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -107,6 +128,32 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          
+          {/* Install Button */}
+          {showInstallButton && (
+            <button
+              onClick={handleInstallClick}
+              style={{
+                position: 'fixed',
+                bottom: '20px',
+                right: '20px',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                padding: '12px 24px',
+                borderRadius: '50px',
+                border: 'none',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                zIndex: 9999,
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '16px',
+                fontFamily: 'system-ui, -apple-system, sans-serif'
+              }}
+            >
+              📱 Install App
+            </button>
+          )}
+          
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
