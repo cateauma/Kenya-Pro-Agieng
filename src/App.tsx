@@ -79,20 +79,17 @@ const App = () => {
   useEffect(() => {
     let deferredPrompt: any = null;
 
-    const handler = (e: any) => {
+    const handler = (e: Event) => {
       e.preventDefault(); // prevent automatic prompt
       deferredPrompt = e;
       // attach helper to window for manual triggering
       (window as any).promptPWA = () => {
-        if (!deferredPrompt) {
-          console.log("No install prompt available yet.");
-          return;
+        if (deferredPrompt && (deferredPrompt as any).prompt) {
+          (deferredPrompt as any).prompt();
+          (deferredPrompt as any).userChoice.then((choiceResult: any) => {
+            deferredPrompt = null;
+          });
         }
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult: any) => {
-          console.log("User choice:", choiceResult.outcome); // accepted or dismissed
-          deferredPrompt = null;
-        });
       };
     };
 
@@ -100,6 +97,7 @@ const App = () => {
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handler);
+      delete (window as any).promptPWA;
     };
   }, []);
 
