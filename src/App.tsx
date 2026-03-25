@@ -79,6 +79,11 @@ const App = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallButton, setShowInstallButton] = useState(false);
 
+  // --- Check if on mobile device ---
+  const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  };
+
   // --- PWA beforeinstallprompt handler ---
   useEffect(() => {
     const handler = (e: Event) => {
@@ -86,28 +91,38 @@ const App = () => {
       e.preventDefault();
       setDeferredPrompt(e);
       setShowInstallButton(true);
-      // attach helper to window for manual triggering
-      (window as any).promptPWA = () => {
-        if (deferredPrompt && (deferredPrompt as any).prompt) {
-          (deferredPrompt as any).prompt();
-          (deferredPrompt as any).userChoice.then((choiceResult: any) => {
-            setDeferredPrompt(null);
-            setShowInstallButton(false);
-          });
-        }
-      };
+      console.log("Install prompt ready on mobile");
     };
 
     window.addEventListener("beforeinstallprompt", handler);
 
+    // If on mobile but event hasn't fired after 3 seconds, still show the button
+    // with a fallback to manual add to home screen instructions
+    if (isMobile()) {
+      const timer = setTimeout(() => {
+        if (!showInstallButton && !deferredPrompt) {
+          setShowInstallButton(true);
+          setDeferredPrompt(null); // No auto prompt available, will show manual instructions
+        }
+      }, 3000);
+      
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener("beforeinstallprompt", handler);
+      };
+    }
+
     return () => {
       window.removeEventListener("beforeinstallprompt", handler);
-      delete (window as any).promptPWA;
     };
-  }, [deferredPrompt]);
+  }, []);
 
   const handleInstallClick = () => {
-    if (!deferredPrompt) return;
+    if (!deferredPrompt) {
+      // If no deferred prompt, show manual instructions
+      alert("To install the app:\n\nAndroid: Tap the three dots menu → 'Install App' or 'Add to Home Screen'\n\niPhone: Tap Share button → 'Add to Home Screen'");
+      return;
+    }
     
     // Show the install prompt
     deferredPrompt.prompt();
@@ -129,7 +144,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           
-          {/* Install Button */}
+          {/* Install Button - Only show on mobile */}
           {showInstallButton && (
             <button
               onClick={handleInstallClick}
